@@ -1,10 +1,10 @@
 name: doctor_dashboard_app
 description: A new Flutter project - Doctor Dashboard
-publish_to: "none" # Remove this line if you wish to publish to pub.dev
+publish_to: "none"
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.18.0 <3.0.0"
+  sdk: ">=2.18.0 <4.0.0"
 
 dependencies:
   flutter:
@@ -14,11 +14,17 @@ dependencies:
   fl_chart: any
   google_fonts: ^6.3.3
 
+  # ---- Firebase (Compatible Versions) ----
+  firebase_core: ^2.24.2
+  firebase_auth: ^4.16.0
+  cloud_firestore: ^4.17.2
+  firebase_storage: ^11.7.0
+  firebase_analytics: ^10.8.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
-  flutter_lints: ^6.0.0
+  flutter_lints: ^3.0.1
 
 flutter:
   uses-material-design: true

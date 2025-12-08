@@ -1,21 +1,28 @@
-// lib/models/patient.dart
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Patient {
+  final String id;
   final String name;
-  final int age;
-  final String disorder;
+  final int? age;
+  final Timestamp? createdAt;
+  final Map<String, dynamic>? extra;
 
-  // New fields
-  final List<String> medicalRecords;
-  final List<Map<String, String>> medicines; // {name, dosage}
-  final List<double> improvementStats; // Chart data points
-
-  const Patient({
+  Patient({
+    required this.id,
     required this.name,
-    required this.age,
-    required this.disorder,
-    required this.medicalRecords,
-    required this.medicines,
-    required this.improvementStats,
+    this.age,
+    this.createdAt,
+    this.extra,
   });
+
+  factory Patient.fromDoc(DocumentSnapshot doc) {
+    final data = doc.data() as Map<String, dynamic>? ?? {};
+    return Patient(
+      id: doc.id,
+      name: data['name'] ?? '—',
+      age: data['age'] is int ? data['age'] as int : (data['age'] != null ? int.tryParse(data['age'].toString()) : null),
+      createdAt: data['createdAt'] as Timestamp?,
+      extra: data,
+    );
+  }
 }

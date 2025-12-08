@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "866054846232",
+    "project_id": "doctor-dashboard-a77a1",
+    "storage_bucket": "doctor-dashboard-a77a1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:866054846232:android:7887aca890126ae7c5d06d",
+        "android_client_info": {
+          "package_name": "com.example.doctor_dashboard_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBqmB7o7-RHK6jGVoAPXaGKhvuGdLEZ2tY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

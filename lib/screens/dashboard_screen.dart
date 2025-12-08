@@ -1,154 +1,94 @@
-// lib/screens/dashboard_screen.dart
-
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/patient.dart';
 
 class DashboardScreen extends StatelessWidget {
-  DashboardScreen({Key? key}) : super(key: key);
-
-  final List<Patient> patients = [
-    Patient(
-      name: "Rohan Sharma",
-      age: 45,
-      disorder: "Osteoporosis",
-      medicalRecords: [
-        "X-Ray shows reduced bone density",
-        "Vitamin D deficiency level",
-        "Follow-up scheduled next month",
-      ],
-      medicines: [
-        {"name": "Calcium Tablets", "dosage": "500mg daily"},
-        {"name": "Vitamin D3", "dosage": "2000 IU daily"},
-      ],
-      improvementStats: [10, 20, 30, 50, 60, 75],
-    ),
-    Patient(
-      name: "Priya Verma",
-      age: 32,
-      disorder: "Fracture (Leg)",
-      medicalRecords: [
-        "Cast placed on left leg",
-        "Swelling reduced",
-        "Patient recovering well",
-      ],
-      medicines: [
-        {"name": "Pain Relief", "dosage": "Two times a day"},
-        {"name": "Bone Healing Syrup", "dosage": "Once after meals"},
-      ],
-      improvementStats: [5, 10, 20, 40, 50, 80],
-    ),
-    Patient(
-      name: "Aditya Mehta",
-      age: 60,
-      disorder: "Arthritis",
-      medicalRecords: [
-        "Joint stiffness observed",
-        "Anti-inflammatory treatment started",
-        "Patient suggested yoga sessions",
-      ],
-      medicines: [
-        {
-          "name": "Anti-inflammatory tablets",
-          "dosage": "Twice daily",
-        },
-        {"name": "Joint Supplement", "dosage": "One tablet daily"},
-      ],
-      improvementStats: [15, 18, 25, 35, 50, 65],
-    ),
-  ];
+  const DashboardScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser;
+    final db = FirebaseFirestore.instance;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Doctor Dashboard"),
+        title: const Text('Dashboard'),
+        actions: [
+          if (user != null) Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+            child: Center(child: Text(user.email ?? '—')),
+          ),
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () async {
+              await FirebaseAuth.instance.signOut();
+              Navigator.pushReplacementNamed(context, '/login');
+            },
+          )
+        ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
+      body: StreamBuilder<QuerySnapshot>(
+        stream: db.collection('patients').orderBy('createdAt', descending: true).snapshots(),
+        builder: (context, snap) {
+          if (snap.hasError) return Center(child: Text('Error: ${snap.error}'));
+          if (snap.connectionState == ConnectionState.waiting) return const Center(child: CircularProgressIndicator());
+          final docs = snap.data!.docs;
+          if (docs.isEmpty) return const Center(child: Text('No patients yet'));
+          final patients = docs.map((d) => Patient.fromDoc(d)).toList();
+          return ListView.builder(
+            itemCount: patients.length,
+            itemBuilder: (context, i) {
+              final p = patients[i];
+              return ListTile(
+                title: Text(p.name),
+                subtitle: Text('Age: ${p.age ?? '—'}'),
+                trailing: Text(p.createdAt != null ? DateTime.fromMillisecondsSinceEpoch((p.createdAt!.seconds * 1000)).toLocal().toString().split('.')[0] : ''),
+                onTap: () => Navigator.pushNamed(context, '/patientDetails', arguments: p),
+              );
+            },
+          );
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _showAddPatientDialog(context, db),
+        child: const Icon(Icons.add),
+      ),
+    );
+  }
+
+  void _showAddPatientDialog(BuildContext context, FirebaseFirestore db) {
+    final nameC = TextEditingController();
+    final ageC = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Add patient'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            // 🔹 Animated Welcome Header
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 800),
-              curve: Curves.easeOutCubic,
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.teal.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(18),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Text(
-                    "👋 Welcome Doctor",
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.tealAccent,
-                    ),
-                  ),
-                  SizedBox(height: 6),
-                  Text(
-                    "Your patients are waiting. Heal with purpose 💙",
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 20),
-
-            // 🔹 Patients List
-            Expanded(
-              child: ListView.builder(
-                itemCount: patients.length,
-                itemBuilder: (context, index) {
-                  final patient = patients[index];
-
-                  return Card(
-                    elevation: 3,
-                    margin: const EdgeInsets.only(bottom: 16),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            patient.name,
-                            style: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text("Age: ${patient.age}"),
-                          Text("Condition: ${patient.disorder}"),
-                          const SizedBox(height: 10),
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: ElevatedButton(
-                              onPressed: () {
-                                Navigator.pushNamed(
-                                  context,
-                                  '/patientDetails',
-                                  arguments: patient,
-                                );
-                              },
-                              child: const Text("View Details"),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
+            TextField(controller: nameC, decoration: const InputDecoration(labelText: 'Name')),
+            TextField(controller: ageC, decoration: const InputDecoration(labelText: 'Age'), keyboardType: TextInputType.number),
           ],
         ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          TextButton(onPressed: () async {
+            final name = nameC.text.trim();
+            final age = int.tryParse(ageC.text.trim());
+            if (name.isEmpty) {
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Enter name')));
+              return;
+            }
+            await db.collection('patients').add({
+              'name': name,
+              'age': age,
+              'createdAt': FieldValue.serverTimestamp(),
+            });
+            Navigator.pop(ctx);
+          }, child: const Text('Add')),
+        ],
       ),
     );
   }
