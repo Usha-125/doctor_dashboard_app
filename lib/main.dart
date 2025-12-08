@@ -56,10 +56,11 @@ class DoctorDashboardApp extends StatelessWidget {
       initialRoute: '/',
 
       routes: {
-        '/': (context) => const LoginScreen(),
+        '/': (context) => const SignupScreen(),
 
+  
         // Make sure your class name in signup_screen.dart is `SignupScreen`
-        '/signup': (context) => const SignupScreen(),
+        '/login': (context) => const LoginScreen(),
 
         // ❌ no const here because DashboardScreen has non-const fields
         '/dashboard': (context) => DashboardScreen(),

@@ -8,129 +8,235 @@ class SignupScreen extends StatefulWidget {
 }
 
 class _SignupScreenState extends State<SignupScreen> {
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController = TextEditingController();
+  final nameController = TextEditingController();
+  final licenseController = TextEditingController();
+  final treatmentController = TextEditingController();
+  final otherHospitalsController = TextEditingController();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  final confirmPasswordController = TextEditingController();
 
   void _register() {
-    final name = nameController.text.trim();
-    final email = emailController.text.trim();
-    final password = passwordController.text.trim();
-    final confirmPassword = confirmPasswordController.text.trim();
-
-    if (name.isEmpty || email.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
+    // basic validation
+    if (nameController.text.isEmpty ||
+        licenseController.text.isEmpty ||
+        treatmentController.text.isEmpty ||
+        otherHospitalsController.text.isEmpty ||
+        emailController.text.isEmpty ||
+        passwordController.text.isEmpty ||
+        confirmPasswordController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("All fields are required")),
+        const SnackBar(content: Text("Please fill all fields")),
       );
       return;
     }
 
-    if (password != confirmPassword) {
+    if (passwordController.text != confirmPasswordController.text) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Passwords do not match")),
       );
       return;
     }
 
-    // Simulated success (later this will be replaced with real backend)
+    // TODO: add real register logic here
     Navigator.pushReplacementNamed(context, '/dashboard');
   }
 
   @override
   Widget build(BuildContext context) {
+    const yellow = Color(0xFFFFC107);
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Create Account"),
-      ),
+      backgroundColor: Colors.black,
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              
-              const SizedBox(height: 10),
-
-              const Text(
-                "Register",
-                style: TextStyle(
-                  fontSize: 30,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-
-              const SizedBox(height: 30),
-
-              TextField(
-                controller: nameController,
-                decoration: const InputDecoration(
-                  labelText: "Name",
-                  border: OutlineInputBorder(),
-                ),
-              ),
-
-              const SizedBox(height: 16),
-
-              TextField(
-                controller: emailController,
-                decoration: const InputDecoration(
-                  labelText: "Email",
-                  border: OutlineInputBorder(),
-                ),
-              ),
-
-              const SizedBox(height: 16),
-
-              TextField(
-                controller: passwordController,
-                obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: "Password",
-                  border: OutlineInputBorder(),
-                ),
-              ),
-
-              const SizedBox(height: 16),
-
-              TextField(
-                controller: confirmPasswordController,
-                obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: "Confirm Password",
-                  border: OutlineInputBorder(),
-                ),
-              ),
-
-              const SizedBox(height: 30),
-
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: _register,
-                  child: const Text(
-                    "Register",
-                    style: TextStyle(fontSize: 18),
+        child: Center(
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            constraints: const BoxConstraints(maxWidth: 1450),
+            child: Row(
+              children: [
+                // ================= LEFT SIDE (LOGO + HAND) =================
+                Expanded(
+                  flex: 4,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // BRAINI logo image
+                      Image.asset(
+                        "assets/images/braini_logo.png",
+                        height: 120,
+                        fit: BoxFit.contain,
+                      ),
+                      const SizedBox(height: 20),
+                      // Hand illustration
+                      Image.asset(
+                        "assets/images/hand.png",
+                        height: 480,
+                        fit: BoxFit.contain,
+                      ),
+                    ],
                   ),
                 ),
-              ),
 
-              const SizedBox(height: 20),
+                const SizedBox(width: 40),
 
-              Center(
-                child: GestureDetector(
-                  onTap: () => Navigator.pushReplacementNamed(context, '/login'),
-                  child: const Text(
-                    "Already have an account? Login",
-                    style: TextStyle(
-                      color: Colors.indigo,
-                      fontWeight: FontWeight.bold,
+                // ================= RIGHT SIDE (FORM CARD) =================
+                Expanded(
+                  flex: 6,
+                  child: Container(
+                    padding: const EdgeInsets.all(28),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: yellow, width: 1.3),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          // BRAINI-X centered
+                          Center(
+                            child: Text(
+                              "BRAINI-X",
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: yellow,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+
+                          // CREATE ACCOUNT centered
+                          Center(
+                            child: Text(
+                              "CREATE ACCOUNT",
+                              style: const TextStyle(
+                                fontSize: 26,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                                letterSpacing: 1.3,
+                              ),
+                            ),
+                          ),
+
+                          const SizedBox(height: 40),
+
+                          // ====== INPUT FIELDS (black background) ======
+                          _inputBox("Full name", nameController, yellow),
+                          const SizedBox(height: 22),
+
+                          _inputBox("License number", licenseController, yellow),
+                          const SizedBox(height: 22),
+
+                          _inputBox(
+                            "Hospital / Treatment",
+                            treatmentController,
+                            yellow,
+                          ),
+                          const SizedBox(height: 22),
+
+                          _inputBox(
+                            "Other hospitals working",
+                            otherHospitalsController,
+                            yellow,
+                          ),
+                          const SizedBox(height: 22),
+
+                          _inputBox("Email", emailController, yellow),
+                          const SizedBox(height: 22),
+
+                          _inputBox(
+                            "Password",
+                            passwordController,
+                            yellow,
+                            obscure: true,
+                          ),
+                          const SizedBox(height: 22),
+
+                          _inputBox(
+                            "Confirm password",
+                            confirmPasswordController,
+                            yellow,
+                            obscure: true,
+                          ),
+
+                          const SizedBox(height: 30),
+
+                          // Register button
+                          SizedBox(
+                            width: 220,
+                            height: 52,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: yellow,
+                                foregroundColor: Colors.black,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                              onPressed: _register,
+                              child: const Text(
+                                "Register",
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          const SizedBox(height: 16),
+
+                          // Login link
+                          GestureDetector(
+                            onTap: () =>
+                                Navigator.pushReplacementNamed(context, '/login'),
+                            child: Text(
+                              "Already registered? Login",
+                              style: TextStyle(
+                                color: yellow,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // =============== REUSABLE INPUT FIELD ===============
+  Widget _inputBox(
+    String label,
+    TextEditingController controller,
+    Color yellow, {
+    bool obscure = false,
+  }) {
+    return Container(
+      height: 60,
+      decoration: BoxDecoration(
+        color: Colors.black, // <-- input background BLACK (no grey)
+        border: Border.all(color: yellow, width: 1.2),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 14),
+      child: TextField(
+        controller: controller,
+        obscureText: obscure,
+        style: const TextStyle(color: Colors.white),
+        decoration: InputDecoration(
+          border: InputBorder.none,
+          labelText: label,
+          labelStyle: TextStyle(
+            color: yellow,
+            fontWeight: FontWeight.bold,
+            fontSize: 14,
           ),
         ),
       ),

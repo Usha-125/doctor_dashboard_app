@@ -9,11 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-    
 
   cupertino_icons: ^1.0.2
-
-  # Added chart package for improvement graphs
   fl_chart: any
   google_fonts: ^6.3.3
 
@@ -28,6 +25,8 @@ flutter:
 
   assets:
     - assets/fonts/
+    - assets/images/hand.png
+    - assets/images/braini_logo.png
 
   fonts:
     - family: Poppins
@@ -37,4 +36,3 @@ flutter:
           weight: 500
         - asset: assets/fonts/Poppins-Bold.ttf
           weight: 700
-
