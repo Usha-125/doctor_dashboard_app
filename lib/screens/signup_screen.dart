@@ -101,17 +101,16 @@ class _SignupScreenState extends State<SignupScreen>
 
       final user = cred.user;
       if (user != null) {
-        // create a doctor profile in Firestore
         await _db.collection('doctors').doc(user.uid).set({
           'name': nameController.text.trim(),
           'license': licenseController.text.trim(),
           'treatment': treatmentController.text.trim(),
           'otherHospitals': otherHospitalsController.text.trim(),
           'email': emailController.text.trim(),
+          'uid': user.uid,
           'createdAt': FieldValue.serverTimestamp(),
         });
 
-        // success — navigate to dashboard
         if (mounted) {
           Navigator.pushReplacementNamed(context, '/dashboard');
         }

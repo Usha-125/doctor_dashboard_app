@@ -1,3 +1,4 @@
+// lib/models/patient.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Patient {
@@ -16,11 +17,13 @@ class Patient {
   });
 
   factory Patient.fromDoc(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>? ?? {};
+    final data = (doc.data() as Map<String, dynamic>?) ?? {};
     return Patient(
       id: doc.id,
-      name: data['name'] ?? '—',
-      age: data['age'] is int ? data['age'] as int : (data['age'] != null ? int.tryParse(data['age'].toString()) : null),
+      name: data['name']?.toString() ?? '—',
+      age: data['age'] is int
+          ? data['age'] as int
+          : (data['age'] != null ? int.tryParse(data['age'].toString()) : null),
       createdAt: data['createdAt'] as Timestamp?,
       extra: data,
     );

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -13,6 +14,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController passwordController = TextEditingController();
 
   final _auth = FirebaseAuth.instance;
+  final _db = FirebaseFirestore.instance;
   bool _loading = false;
 
   void _login() async {
@@ -29,8 +31,22 @@ class _LoginScreenState extends State<LoginScreen> {
         email: emailController.text.trim(),
         password: passwordController.text,
       );
-      if (cred.user != null) {
-        Navigator.pushReplacementNamed(context, '/dashboard');
+
+      final user = cred.user;
+      if (user != null) {
+        // Verify user has a doctors profile
+        final doc = await _db.collection('doctors').doc(user.uid).get();
+        if (!doc.exists) {
+          // Not a registered doctor in DB -> sign out and block access
+          await _auth.signOut();
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('No doctor profile found for this account. Please register or contact admin.')),
+          );
+          return;
+        }
+
+        // Successful login + doctor profile exists -> go to dashboard
+        if (mounted) Navigator.pushReplacementNamed(context, '/dashboard');
       }
     } on FirebaseAuthException catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -48,6 +64,12 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     const yellow = Color(0xFFFFC107);
+
+    // If already signed in, redirect to dashboard to avoid double login screen.
+    final current = FirebaseAuth.instance.currentUser;
+    if (current != null) {
+      Future.microtask(() => Navigator.pushReplacementNamed(context, '/dashboard'));
+    }
 
     return Scaffold(
       backgroundColor: Colors.black,
